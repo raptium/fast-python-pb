@@ -203,6 +203,23 @@ namespace {
       return PyString_FromStringAndSize(result.data(), result.length());
   }
 
+  PyObject *
+  {{ message.name }}_Copy({{ message.name }}* self)
+  {
+      {{ message.name }}* cloned = NULL;
+      Py_BEGIN_ALLOW_THREADS
+      cloned = ({{ message.name }}*){{ message.name }}_new(&{{ message.name }}Type, NULL, NULL);
+      cloned->protobuf->CopyFrom(*self->protobuf);
+      Py_END_ALLOW_THREADS
+      return (PyObject*)cloned;
+  }
+
+  PyObject *
+  {{ message.name }}_DeepCopy({{ message.name }}* self, PyObject* /*memo*/)
+  {
+      return {{ message.name }}_Copy(self);
+  }
+
 
   PyObject *
   {{ message.name }}_ParseFromString({{ message.name }}* self, PyObject *value)
@@ -214,6 +231,18 @@ namespace {
       Py_RETURN_NONE;
   }
 
+  PyObject *
+  {{ message.name }}_Reduce({{ message.name }}* self)
+  {
+      PyObject* ret = PyTuple_New(3);
+      PyObject* type_object = (PyObject*)Py_TYPE(self);
+      Py_INCREF(type_object);
+      PyObject* state = {{ message.name }}_SerializeToString(self);
+      PyTuple_SetItem(ret, 0, type_object);
+      PyTuple_SetItem(ret, 1, PyTuple_New(0));
+      PyTuple_SetItem(ret, 2, state);
+      return ret;
+  }
 
   PyObject *
   {{ message.name }}_ParseFromLongString({{ message.name }}* self, PyObject *value)
@@ -658,10 +687,23 @@ namespace {
       {"ParseMany", (PyCFunction){{ message.name }}_ParseMany, METH_VARARGS | METH_CLASS,
        "Parses many protocol buffers of this type from a string."
       },
+      {"__copy__", (PyCFunction){{ message.name }}_DeepCopy, METH_NOARGS,
+       "copy a pb message."
+      },
+      {"__deepcopy__", (PyCFunction){{ message.name }}_DeepCopy, METH_O,
+       "deep copy a pb message."
+      },
+      {"__getstate__", (PyCFunction){{ message.name }}_SerializeToString, METH_NOARGS,
+       "support getstate"
+      },
+      {"__setstate__", (PyCFunction){{ message.name }}_ParseFromString, METH_O,
+       "support setstate"
+      },
+      {"__reduce__", (PyCFunction){{ message.name }}_Reduce, METH_NOARGS,
+       "support pickle"
+      },
       {NULL}  // Sentinel
   };
-
-
   PyTypeObject {{ message.name }}Type = {
       PyObject_HEAD_INIT(NULL)
       0,                                      /*ob_size*/
@@ -688,9 +730,9 @@ namespace {
       0,                                      /* tp_traverse */
       0,                                      /* tp_clear */
       {{ message.name }}_richcompare,         /* tp_richcompare */
-      0,	   	                                /* tp_weaklistoffset */
-      0,                   		                /* tp_iter */
-      0,		                                  /* tp_iternext */
+      0,                                       /* tp_weaklistoffset */
+      0,                                       /* tp_iter */
+      0,                                      /* tp_iternext */
       {{ message.name }}_methods,             /* tp_methods */
       {{ message.name }}_members,             /* tp_members */
       {{ message.name }}_getsetters,          /* tp_getset */
@@ -711,7 +753,7 @@ static PyMethodDef module_methods[] = {
     {NULL}  // Sentinel
 };
 
-#ifndef PyMODINIT_FUNC	// Declarations for DLL import/export.
+#ifndef PyMODINIT_FUNC  // Declarations for DLL import/export.
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC

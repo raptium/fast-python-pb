@@ -2,6 +2,8 @@
 """Auto-generated unit tests."""
 
 import unittest
+import copy
+import cPickle
 
 {% for file in files %}
 import {{ file.package }}
@@ -54,6 +56,15 @@ class Test_{{ file.package.replace('.', '_') }}(unittest.TestCase):
     {% for field in message.field %}
     self.assertEquals(pb.{{ field.name }}, pb2.{{ field.name }})
     {% endfor %}
+
+    pb3 = copy.deepcopy(pb)
+    pb4 = cPickle.loads(cPickle.dumps(pb3))
+
+    {% for field in message.field %}
+    self.assertEquals(pb.{{ field.name }}, pb3.{{ field.name }})
+    self.assertEquals(pb.{{ field.name }}, pb4.{{ field.name }})
+    {% endfor %}
+
   {% endfor %}
 {% endfor %}
 
