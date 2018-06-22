@@ -20,8 +20,10 @@ except ImportError:
     # just ignore the order with Python <2.7 for now
     OrderedDict = dict
 
+
 class CyclicError(Exception):
     pass
+
 
 def order_dependencies(dependencies):
     """Produce a topologically-sorted list of the given dependencies.
@@ -107,6 +109,8 @@ def order_dependencies(dependencies):
     if data:
         raise CyclicError('A cyclic dependency exists amongst %r' % dict(data))
 
+
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

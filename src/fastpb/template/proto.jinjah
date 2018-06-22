@@ -1,0 +1,7 @@
+// Lets try not to pollute the global namespace
+namespace fast_pb_wrapped {
+  // Forward-declaration for recursive structures
+  {% for message in messages %}
+  extern PyTypeObject {{ message.name }}Type;
+  {% endfor %}
+}

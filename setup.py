@@ -18,26 +18,30 @@
 """Setup script for fast python protocol buffers."""
 
 try:
-  from setuptools import setup
+    from setuptools import setup
 except ImportError:
-  from distutils.core import setup
+    from distutils.core import setup
 
-setup(name='fastpb',
-      version='0.1',
-      description='Fast Python Protocol Buffers',
-      license='Apache',
-      author='Greplin, Inc.',
-      author_email='opensource@greplin.com',
-      url='https://www.github.com/Cue/fast-python-pb',
-      package_dir={'': 'src'},
-      packages=['fastpb'],
-      package_data={
+setup(
+    name='fastpb',
+    version='0.1',
+    description='Fast Python Protocol Buffers',
+    license='Apache',
+    author='Greplin, Inc.',
+    author_email='opensource@greplin.com',
+    url='https://www.github.com/Cue/fast-python-pb',
+    package_dir={'': 'src'},
+    packages=['fastpb'],
+    package_data={
         'fastpb': ['template/*'],
-      },
-      entry_points={
+    },
+    entry_points={
         'console_scripts': [
-          'protoc-gen-fastpython = fastpb.generator:main'
+            'protoc-gen-fastpython = fastpb.generator:main'
         ]
-      },
-      install_requires=['ez-setup==0.9', 'protobuf >= 2.3.0', 'jinja2 >= 2.0'],
+    },
+    install_requires=[
+        'protobuf >= 2.3.0',
+        'jinja2 >= 2.0',
+    ],
 )

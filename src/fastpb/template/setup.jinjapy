@@ -1,23 +1,27 @@
-try:
-  from setuptools import setup, Extension
-except ImportError:
-  from distutils.core import setup, Extension
+from setuptools import setup, find_packages, Extension
 
-setup(name="proto_wrapper",
-      version="1.0",
-      packages=[
-        {% for parent in parents %}
-          "{{ parent }}",
+setup(
+    name="proto_wrapper",
+    version="1.0.0",
+    packages=find_packages("src"),
+    package_dir={
+        "": "src",
+    },
+    namespace_packages=[
+        {% for ns in namespaces %}
+        "{{ ns }}",
         {% endfor %}
-      ],
-      package_dir={
-        {% for parent in parents %}
-          "{{ parent }}": "src/{{ parent.replace('.', '/') }}",
-        {% endfor %}
-      },
-      ext_modules=[
-        {% for file in files %}
-          Extension("{{ file.package }}", ["{{ file.name }}.cc", "{{ file.name }}.pb.cc"], libraries=['protobuf']),
-        {% endfor %}
-      ],
-      test_suite="test.suite")
+    ],
+    ext_modules=[
+    {% for pkg in packages %}
+        Extension("{{ pkg.name}}", [
+            "{{ pkg.name }}.cc",
+            {% for proto in pkg.children %}
+            "{{ proto.name|proto_name }}.cc",
+            "{{ proto.name|proto_name }}.pb.cc",
+            {% endfor %}
+        ], libraries=['protobuf']),
+    {% endfor %}
+    ],
+    test_suite="test.suite"
+)

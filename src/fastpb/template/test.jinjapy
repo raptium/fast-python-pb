@@ -5,10 +5,6 @@ import unittest
 import copy
 import cPickle
 
-{% for file in files %}
-import {{ file.package }}
-{% endfor %}
-
 {% macro value(field, index) -%}
   {%- if field.label == LABEL.REPEATED -%}
     (
@@ -38,9 +34,16 @@ import {{ file.package }}
   {%- endif -%}
 {%- endmacro %}
 
-{% for file in files %}
+{% for pkg in packages %}
+{% for file in pkg.children %}
+import {{ file.package }}
+{% endfor %}
+{% endfor %}
+
+{% for pkg in packages %}
+{% for file in pkg.children %}
 class Test_{{ file.package.replace('.', '_') }}(unittest.TestCase):
-  {% for message in file.messages %}
+  {% for message in file.message_type %}
   def test{{ message.name }}_Basics(self):
     pb = {{ file.package }}.{{ message.name }}()
     {% for field in message.field %}
@@ -68,10 +71,14 @@ class Test_{{ file.package.replace('.', '_') }}(unittest.TestCase):
   {% endfor %}
 {% endfor %}
 
+{% endfor %}
+
 
 def suite():
   suite = unittest.TestSuite()
-  {% for file in files %}
+  {% for pkg in packages %}
+  {% for file in pkg.children %}
   suite.addTests(unittest.makeSuite(Test_{{ file.package.replace('.', '_') }}))
+  {% endfor %}
   {% endfor %}
   return suite
