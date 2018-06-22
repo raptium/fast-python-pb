@@ -93,7 +93,7 @@ def sort_messages(proto_file):
     visit('.' + proto_file.package, proto_file.message_type)
 
     sorted_msg_names = order_dependencies(dependencies)
-    return [msg_dict[n] for n in sorted_msg_names]
+    return [msg_dict[n] for n in sorted_msg_names if n in msg_dict]
 
 
 def write_proto_cc(response, proto_file):
@@ -109,8 +109,9 @@ def write_proto_cc(response, proto_file):
         'packageName': proto_file.package.split('.')[-1],
         'messages': messages,
         'enums': proto_file.enum_type,
+        'dependencies': proto_file.dependency,
         'TYPE': TYPE,
-        'LABEL': LABEL
+        'LABEL': LABEL,
     }
 
     cc_file = response.file.add()
@@ -226,7 +227,7 @@ def main():
 
     package_list = [{'name': k, 'children': v} for (k, v) in packages.iteritems()]
 
-    sys.stderr.write('%s' % package_list)
+    # sys.stderr.write('%s' % package_list)
 
     for package in package_list:
         write_module_cc(response, package)

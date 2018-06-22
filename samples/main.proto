@@ -1,0 +1,8 @@
+package b2log;
+
+import "small.proto";
+
+message Main {
+    optional Small small = 1;
+    optional string haha = 2;
+}

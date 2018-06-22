@@ -17,21 +17,18 @@
 
 """Setup script for fast python protocol buffers."""
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(
     name='fastpb',
-    version='0.1',
+    version='0.2.0',
     description='Fast Python Protocol Buffers',
     license='Apache',
     author='Greplin, Inc.',
     author_email='opensource@greplin.com',
     url='https://www.github.com/Cue/fast-python-pb',
     package_dir={'': 'src'},
-    packages=['fastpb'],
+    packages=find_packages('src'),
     package_data={
         'fastpb': ['template/*'],
     },

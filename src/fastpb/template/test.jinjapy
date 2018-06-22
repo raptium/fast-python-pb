@@ -20,6 +20,7 @@ import cPickle
   {%- elif field.type == TYPE.INT32
         or field.type == TYPE.SINT32
         or field.type == TYPE.UINT32
+        or field.type == TYPE.FIXED32
         or field.type == TYPE.INT64
         or field.type == TYPE.SINT64
         or field.type == TYPE.UINT64 -%}

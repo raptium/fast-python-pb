@@ -5,10 +5,16 @@
 #include "structmember.h"
 #include "{{ fileName }}.h"
 #include "{{ fileName }}.pb.h"
+{% for dep in dependencies %}
+#include "{{ dep.split('.')[0] }}.h"
+{% endfor %}
 
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 
+{% macro full_type_name(field) -%}
+    {{ field.type_name.replace('.', '::') }}
+{%- endmacro %}
 
 {% macro cpp_type_name(field) -%}
     {{ '_'.join(field.type_name.replace('.' + moduleName + '.', '').split('.')) }}
@@ -93,12 +99,13 @@ fastpb_convert{{ TYPE.ENUM }}(int value)
     return PyInt_FromLong(value);
 }
 
+namespace fast_pb_wrapped {
 {% for enum in enums %}
   typedef struct {
       PyObject_HEAD
   } enum_{{ enum.name }};
 
-  static PyTypeObject enum_{{ enum.name }}Type = {
+  PyTypeObject enum_{{ enum.name }}Type = {
       PyObject_HEAD_INIT(NULL)
       0,                                      /*ob_size*/
       "{{ moduleName }}.{{ enum.name }}",     /*tp_name*/
@@ -123,6 +130,7 @@ fastpb_convert{{ TYPE.ENUM }}(int value)
       "{{ enum.name }} enumeration",          /* tp_doc */
   };
 {% endfor %}
+}
 
 {% for message in messages %}
 
@@ -132,11 +140,11 @@ namespace fast_pb_wrapped {
   // Forward-declaration for recursive structures
   // extern PyTypeObject {{ message.name }}Type;
 
-  typedef struct {
-      PyObject_HEAD
-
-      {{ package }}::{{ message.name }} *protobuf;
-  } {{ message.name }};
+//  typedef struct {
+//      PyObject_HEAD
+//
+//      {{ package }}::{{ message.name }} *protobuf;
+//  } {{ message.name }};
 
   void
   {{ message.name }}_dealloc({{ message.name }}* self)

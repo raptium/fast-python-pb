@@ -1,7 +1,16 @@
 // Lets try not to pollute the global namespace
+#include "{{ fileName }}.pb.h"
 namespace fast_pb_wrapped {
   // Forward-declaration for recursive structures
+  {% for enum in enums %}
+  extern PyTypeObject enum_{{ enum.name }}Type;
+  {% endfor %}
   {% for message in messages %}
   extern PyTypeObject {{ message.name }}Type;
+  PyObject *{{ message.name }}_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+  typedef struct {
+      PyObject_HEAD
+      {{ package }}::{{ message.name }} *protobuf;
+  } {{ message.name }};
   {% endfor %}
 }

@@ -1,6 +1,3 @@
-import os
-
-
 def parent_pkg(s):
     """Get the parent package
 
@@ -28,4 +25,4 @@ def proto_name(s):
     :param s:
     :return:
     """
-    return os.path.splitext(s)[0]
+    return s.split('.')[0]
